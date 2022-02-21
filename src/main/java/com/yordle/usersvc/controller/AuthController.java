@@ -35,7 +35,6 @@ public class AuthController {
     @PostMapping("/authenticate")
     public ResponseEntity<AuthenticationResponse> createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest) throws Exception {
         String token = userService.authenticateUser(authenticationRequest.getUsername(), authenticationRequest.getPassword());
-        // Update this to send as an httponly cookie?
         return ResponseEntity.ok(new AuthenticationResponse(token));
     }
 }
