@@ -1,4 +1,4 @@
-package com.yordle.usersvc.models;
+package com.yordle.usersvc.model;
 
 public class AuthenticationRequest {
 

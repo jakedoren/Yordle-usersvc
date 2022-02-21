@@ -1,46 +1,41 @@
 package com.yordle.usersvc.controller;
 
-import com.yordle.usersvc.models.AuthenticationRequest;
-import com.yordle.usersvc.models.AuthenticationResponse;
-import com.yordle.usersvc.util.JwtUtil;
+import com.yordle.usersvc.model.AuthenticationRequest;
+import com.yordle.usersvc.model.AuthenticationResponse;
+import com.yordle.usersvc.model.User;
+import com.yordle.usersvc.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
-@RequestMapping("/authenticate")
+@RequestMapping("/user")
 public class AuthController {
-    private final AuthenticationManager authenticationManager;
-    private final UserDetailsService userDetailsService;
-    private final JwtUtil jwtUtil;
+    private final UserService userService;
 
-    public AuthController(AuthenticationManager authenticationManager, UserDetailsService userDetailsService, JwtUtil jwtUtil) {
-        this.authenticationManager = authenticationManager;
-        this.userDetailsService = userDetailsService;
-        this.jwtUtil = jwtUtil;
+    @Autowired
+    public AuthController(UserService userService) {
+        this.userService = userService;
     }
 
-    @PostMapping
-    public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest) throws Exception {
-        try {
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(authenticationRequest.getUsername(), authenticationRequest.getPassword())
-            );
-        } catch (BadCredentialsException e) {
-            throw new Exception("Incorrect username or password", e);
-        }
-        final UserDetails userDetails = userDetailsService
-                .loadUserByUsername(authenticationRequest.getUsername());
-        final String jwt = jwtUtil.generateToken(userDetails);
+    @GetMapping
+    public ResponseEntity<String> getUsername(@RequestHeader Map<String,String> headers) {
+        String username = userService.getUsername(headers.get("authorization"));
+        return ResponseEntity.ok(username);
+    }
+
+    @PostMapping("/create")
+    public ResponseEntity<AuthenticationResponse> createUser(@RequestBody User user) {
+        String token = userService.createUser(user);
+        return ResponseEntity.ok(new AuthenticationResponse(token));
+    }
+
+    @PostMapping("/authenticate")
+    public ResponseEntity<AuthenticationResponse> createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest) throws Exception {
+        String token = userService.authenticateUser(authenticationRequest.getUsername(), authenticationRequest.getPassword());
         // Update this to send as an httponly cookie?
-        return ResponseEntity.ok(new AuthenticationResponse(jwt));
+        return ResponseEntity.ok(new AuthenticationResponse(token));
     }
 }
