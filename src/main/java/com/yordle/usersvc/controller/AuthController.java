@@ -37,4 +37,10 @@ public class AuthController {
         String token = userService.authenticateUser(authenticationRequest.getUsername(), authenticationRequest.getPassword());
         return ResponseEntity.ok(new AuthenticationResponse(token));
     }
+
+    @GetMapping ("/isloggedin")
+    public ResponseEntity<Boolean> isLoggedIn(@RequestHeader Map<String,String> headers) {
+        boolean isLoggedIn = userService.isLoggedIn(headers.get("authorization"));
+        return ResponseEntity.ok(isLoggedIn);
+    }
 }

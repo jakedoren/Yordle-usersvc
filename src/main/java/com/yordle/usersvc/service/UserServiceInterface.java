@@ -6,4 +6,5 @@ public interface UserServiceInterface {
     String createUser(User user);
     String authenticateUser(String username, String password);
     String getUsername(String authHeader);
+    boolean isLoggedIn(String authHeader);
 }

@@ -64,4 +64,16 @@ public class UserService implements UserServiceInterface{
         }
         return jwtUtil.extractUsername(authHeader.substring(7));
     }
+
+    @Override
+    public boolean isLoggedIn(String authHeader) throws ResponseStatusException {
+        String token = authHeader.substring(7);
+        String username = jwtUtil.extractUsername(token);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        if(username == null || userDetails == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unable to authenticate user");
+        }
+        return jwtUtil.validateToken(token, userDetails);
+    }
+
 }
