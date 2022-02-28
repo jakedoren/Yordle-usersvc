@@ -29,13 +29,13 @@ public class AuthController {
     @PostMapping("/create")
     public ResponseEntity<AuthenticationResponse> createUser(@RequestBody User user) {
         String token = userService.createUser(user);
-        return ResponseEntity.ok(new AuthenticationResponse(token));
+        return ResponseEntity.ok(new AuthenticationResponse(token, user.getUsername()));
     }
 
     @PostMapping("/authenticate")
     public ResponseEntity<AuthenticationResponse> createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest) throws Exception {
         String token = userService.authenticateUser(authenticationRequest.getUsername(), authenticationRequest.getPassword());
-        return ResponseEntity.ok(new AuthenticationResponse(token));
+        return ResponseEntity.ok(new AuthenticationResponse(token, authenticationRequest.getUsername()));
     }
 
     @GetMapping ("/isloggedin")
